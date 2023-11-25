@@ -1,7 +1,17 @@
 # tsuyamaKOSEN-calendar-converter
+
+## usage
+
+```cmd
+$ deno run --allow-net --unsafely-ignore-certificate-errors=www.tsuyama-ct.ac.jp app.ts
+```
+
 ## 関数
-- fetchHtmlSource(): fetch(url)で取得したデータからhtmlのソースコードを取得し、返す
+
+- fetchHtmlSource():
+  fetch(url)で取得したデータからhtmlのソースコードを取得し、返す
 - extractAndConvertToJson()：取得したhtmlから必要な部分を抜き出し、json形式に変換して、返す
+
 ```json
 {
   "4月": [
@@ -17,7 +27,9 @@
   ...
 }
 ```
+
 - jsonToCsv():json形式のテキストをcsvに変換して、出力する
+
 ```csv
 Subject,Start Date,End Date,All Day Event
 春季休業,2023-04-01,2023-04-06,True
