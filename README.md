@@ -11,25 +11,8 @@ $ deno run --allow-net --unsafely-ignore-certificate-errors=www.tsuyama-ct.ac.jp
 - fullWidth2HalfWidth(): 全角数字を半角数字に変換する
 - fetchHtmlSource():
   fetch(url)で取得したデータからhtmlのソースコードを取得し、返す
-- extractAndConvertToJson()：取得したhtmlから必要な部分を抜き出し、json形式に変換して、返す
-
-```json
-{
-  "4月": [
-    "１日（土）～５日（水）": "春季休業", 
-    "１日（土）": "開寮",
-    ...
-  ],
-  "5月": [
-    "８日（月）～１２日（金）": "専攻科推薦入試願書受付",
-    "９日（火）": "学生総会"
-    ...
-  ],
-  ...
-}
-```
-
-- jsonToCsv():json形式のテキストをcsvに変換して、出力する
+- extractAndConvertToObject()：取得したhtmlから必要な部分を抜き出し、オブジェクトに変換して、返す
+- jsonToCsv():json形式のテキストをcsv形式に変換して、返す
 
 ```csv
 Subject,Start Date,End Date,All Day Event
