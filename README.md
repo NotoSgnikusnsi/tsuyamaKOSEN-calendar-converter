@@ -8,6 +8,7 @@ $ deno run --allow-net --unsafely-ignore-certificate-errors=www.tsuyama-ct.ac.jp
 
 ## 関数
 
+- fullWidth2HalfWidth(): 全角数字を半角数字に変換する
 - fetchHtmlSource():
   fetch(url)で取得したデータからhtmlのソースコードを取得し、返す
 - extractAndConvertToJson()：取得したhtmlから必要な部分を抜き出し、json形式に変換して、返す

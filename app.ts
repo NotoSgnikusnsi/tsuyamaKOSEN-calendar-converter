@@ -12,6 +12,12 @@ interface EventData {
   [key: string]: string
 }
 
+const fullWidth2HalfWidth = (src:string) => {
+  return src.replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {
+    return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+  });
+}
+
 // urlを指定してHTMLを取得する
 // deno-lint-ignore ban-types
 const fetchHtmlSource = async (url: string): Promise<string> => {
@@ -21,7 +27,7 @@ const fetchHtmlSource = async (url: string): Promise<string> => {
 };
 
 // HTMLを解析してJSONに変換する
-const extractAndConvertToJson = (html: string): Object => {
+const extractAndConvertToJson = (html: string): JSON => {
   // 月ごとのイベントを格納するオブジェクト
   const events: MonthlyEvents = {};
 
@@ -34,7 +40,8 @@ const extractAndConvertToJson = (html: string): Object => {
 
   // 月ごとにイベントを取得する
   months.forEach((MonthElement) => {
-    const month = MonthElement.textContent.match(/[０-９]+/)![0];
+    const monthZenkaku = MonthElement.textContent.match(/[０-９]+/)![0];
+    const month = fullWidth2HalfWidth(monthZenkaku);
     if (month) {
       // <ul>要素を取得
       const ulElement = (MonthElement as Element).nextElementSibling as Element;
@@ -46,18 +53,19 @@ const extractAndConvertToJson = (html: string): Object => {
           const [firstElement, secondElement, thirdElement] = listItem.textContent?.split("　") || [];
           const result = thirdElement ? [secondElement, thirdElement] : [firstElement, secondElement];
           const event: EventData = {
-            [result[0]]: result[1],
+            [fullWidth2HalfWidth(result[0])]: result[1],
           };
           events[month] = [...(events[month] || []), event];
         });
       }
     }
   });
-  return events;
+  return JSON.parse(JSON.stringify(events));
 };
 
 await fetchHtmlSource("https://www.tsuyama-ct.ac.jp/gyouji/gyouji.html").then(
   (html) => {
-    console.log(extractAndConvertToJson(html));
+    const json = extractAndConvertToJson(html);
+    console.log(json);
   },
 );
