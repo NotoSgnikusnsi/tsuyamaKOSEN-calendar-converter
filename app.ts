@@ -106,29 +106,9 @@ const jsonToCsv = (json: MonthlyEvents, year: number): string => {
 
       // 日付のパターンにマッチするかどうかを判定する
       if (matchPattern(date, day_month_range_pattern_2)) {
-        // const result = date.match(day_month_range_pattern_2);
-        // const startDay = result![2];
-        // const endDay = result![4];
-        // const startMonth = result![1];
-        // const endMonth = result![3];
 
-        // // 1月～3月のイベントの場合は年を跨ぐ可能性があるので、年を調整する
-        // if (startMonth === "1" || startMonth === "2" || startMonth === "3") {
-        //   return csv.push(
-        //     `${eventName},${year + 1}-${startMonth}-${startDay},${
-        //       year + 1
-        //     }-${endMonth}-${endDay},True`,
-        //   );
-        // } else if (endMonth === "1" || endMonth === "2" || endMonth === "3") {
-        //   return csv.push(
-        //     `${eventName},${year}-${startMonth}-${startDay},${
-        //       year + 1
-        //     }-${endMonth}-${endDay},True`,
-        //   );
-        // }
-        // return csv.push(
-        //   `${eventName},${year}-${startMonth}-${startDay},${year}-${endMonth}-${endDay},True`,
-        // );
+        // 予定が重複するためこのパターンの時、何も処理しない
+
       } else if (matchPattern(date, day_month_range_pattern)) {
         const result = date.match(day_month_range_pattern);
         const startDay = result![1];
@@ -140,7 +120,9 @@ const jsonToCsv = (json: MonthlyEvents, year: number): string => {
               year + 1
             }-${endMonth}-${endDay},True`,
           );
-        } else if (endMonth === "01" || endMonth === "02" || endMonth === "03") {
+        } else if (
+          endMonth === "01" || endMonth === "02" || endMonth === "03"
+        ) {
           return csv.push(
             `${eventName},${year}-${month}-${startDay},${
               year + 1
@@ -210,32 +192,9 @@ const jsonToIcal = (json: MonthlyEvents, year: number): string => {
 
       // 日付のパターンにマッチするかどうかを判定する
       if (matchPattern(date, day_month_range_pattern_2)) {
-        // const result = date.match(day_month_range_pattern_2);
-        // const startDay = zeroPadding(result![2]);
-        // const endDay = zeroPadding(result![4]);
-        // const startMonth = zeroPadding(result![1]);
-        // const endMonth = zeroPadding(result![3]);
+        
+        // 予定が重複するためこのパターンの時、何も処理しない
 
-        // // 1月～3月のイベントの場合は年を跨ぐ可能性があるので、年を調整する
-        // if (startMonth === "01" || startMonth === "02" || startMonth === "03") {
-        //   return ical.push(
-        //     `SUMMARY:${eventName}\nDTSTART:${
-        //       year + 1
-        //     }${startMonth}${startDay}\nDTEND:${
-        //       year + 1
-        //     }${endMonth}${endDay}\nEND:VEVENT`,
-        //   );
-        // } else if (endMonth === "01" || endMonth === "02" || endMonth === "03") {
-
-        //   return ical.push(
-        //     `SUMMARY:${eventName}\nDTSTART:${year}${startMonth}${startDay}\nDTEND:${
-        //       year + 1
-        //     }${endMonth}${endDay}\nEND:VEVENT`,
-        //   );
-        // }
-        // return ical.push(
-        //   `SUMMARY:${eventName}\nDTSTART:${year}${startMonth}${startDay}\nDTEND:${year}${endMonth}${endDay}\nEND:VEVENT`,
-        // );
       } else if (matchPattern(date, day_month_range_pattern)) {
         const result = date.match(day_month_range_pattern);
         const startDay = zeroPadding(result![1]);
@@ -321,6 +280,3 @@ export const CreateIcal = async (year: number): Promise<string> => {
       return jsonToIcal(json, year);
     });
 };
-
-// 実行する
-await CreateCsv(2023).then((result) => console.log(result.toString()));
