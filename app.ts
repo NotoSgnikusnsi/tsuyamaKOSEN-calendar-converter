@@ -2,6 +2,7 @@ import {
   DOMParser,
   Element,
 } from "https://deno.land/x/deno_dom@v0.1.43/deno-dom-wasm.ts";
+import "https://deno.land/x/dotenv/load.ts";
 
 // 日付のパターンを正規表現で定義する
 const date_pattern = "([0-9]+)日";
@@ -39,8 +40,13 @@ const fullWidth2HalfWidth = (src: string): string => {
 };
 
 // urlを指定してHTMLを取得する
-const fetchHtmlSource = async (url: string): Promise<string> => {
-  const response = await fetch(url);
+const fetchHtmlSource = async (): Promise<string> => {
+  const proxyUrl = Deno.env.get("PROXY_SERVER");
+  if (!proxyUrl) {
+    throw new Error("PROXY_URL is not defined");
+  }
+
+  const response = await fetch(proxyUrl);
   const html = await response.text();
   return html;
 };
@@ -261,9 +267,7 @@ const jsonToIcal = (json: MonthlyEvents, year: number): string => {
 
 // CSVを作成する
 export const CreateCsv = async (year: number): Promise<string> => {
-  return await fetchHtmlSource(
-    "https://www.tsuyama-ct.ac.jp/gyouji/gyouji.html",
-  )
+  return await fetchHtmlSource()
     .then((html) => extractAndConvertToObject(html))
     .then((json) => {
       return jsonToCsv(json, year);
@@ -272,9 +276,7 @@ export const CreateCsv = async (year: number): Promise<string> => {
 
 // iCalを作成する
 export const CreateIcal = async (year: number): Promise<string> => {
-  return await fetchHtmlSource(
-    "https://www.tsuyama-ct.ac.jp/gyouji/gyouji.html",
-  )
+  return await fetchHtmlSource()
     .then((html) => extractAndConvertToObject(html))
     .then((json) => {
       return jsonToIcal(json, year);
