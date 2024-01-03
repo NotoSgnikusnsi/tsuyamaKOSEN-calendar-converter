@@ -39,6 +39,33 @@ const fullWidth2HalfWidth = (src: string): string => {
   });
 };
 
+// 和暦を西暦に変換する
+const convertToGregorian = (era: string, year: number): number => {
+  const currentYear = new Date().getFullYear();
+  const currentEraYear = new Intl.DateTimeFormat("ja-JP-u-ca-japanese", {
+    era: "long",
+    year: "numeric",
+  }).format(new Date()).match(/..([0-9]+)/)![1];
+  const currentEra = new Intl.DateTimeFormat("ja-JP-u-ca-japanese", {
+    era: "long",
+    year: "numeric",
+  }).format(new Date()).match(/(..)[0-9]+/)![1];
+
+  if (era === currentEra) {
+    if (year === Number(currentEraYear)) {
+      return currentYear;
+    } else {
+      return currentYear - (Number(currentEraYear) - year);
+    }
+  } else {
+    const eraStartYear = new Intl.DateTimeFormat("ja-JP-u-ca-japanese", {
+      era: "long",
+      year: "numeric",
+    }).format(new Date(year, 0)).match(/..([0-9]+)/)![1];
+    return year + (currentYear - Number(eraStartYear));
+  }
+};
+
 // urlを指定してHTMLを取得する
 const fetchHtmlSource = async (): Promise<string> => {
   const proxyUrl = Deno.env.get("PROXY_SERVER");
@@ -49,6 +76,36 @@ const fetchHtmlSource = async (): Promise<string> => {
   const response = await fetch(proxyUrl);
   const html = await response.text();
   return html;
+};
+
+// 年を取得する
+const getYear = (html: string): number => {
+  const domParser = new DOMParser();
+  const document = domParser.parseFromString(html, "text/html");
+
+  // 予定表の年を取得する関数
+  const getScheduleYear = (): string => {
+    const scheduleYear = fullWidth2HalfWidth(
+      document!.querySelector("div#contents_ver4 h3")!.innerText,
+    ).match(/..[0-9]+/);
+    if (!scheduleYear) {
+      throw new Error("Schedule year not found");
+    }
+    return scheduleYear[0];
+  };
+
+  // 年を元号と年に分ける関数
+  const splitYear = (year: string): [string, string] => {
+    const match = year.match(/(..)([0-9]+)/);
+    if (!match) {
+      throw new Error("Invalid year format");
+    }
+    return [match[1], match[2]];
+  };
+
+  const [scheduleEra, scheduleYear] = splitYear(getScheduleYear());
+  const year = convertToGregorian(scheduleEra, Number(scheduleYear));
+  return year;
 };
 
 // HTMLを解析してオブジェクトに変換する
@@ -112,9 +169,7 @@ const jsonToCsv = (json: MonthlyEvents, year: number): string => {
 
       // 日付のパターンにマッチするかどうかを判定する
       if (matchPattern(date, day_month_range_pattern_2)) {
-
         // 予定が重複するためこのパターンの時、何も処理しない
-
       } else if (matchPattern(date, day_month_range_pattern)) {
         const result = date.match(day_month_range_pattern);
         const startDay = result![1];
@@ -198,9 +253,7 @@ const jsonToIcal = (json: MonthlyEvents, year: number): string => {
 
       // 日付のパターンにマッチするかどうかを判定する
       if (matchPattern(date, day_month_range_pattern_2)) {
-        
         // 予定が重複するためこのパターンの時、何も処理しない
-
       } else if (matchPattern(date, day_month_range_pattern)) {
         const result = date.match(day_month_range_pattern);
         const startDay = zeroPadding(result![1]);
@@ -266,19 +319,17 @@ const jsonToIcal = (json: MonthlyEvents, year: number): string => {
 };
 
 // CSVを作成する
-export const CreateCsv = async (year: number): Promise<string> => {
-  return await fetchHtmlSource()
-    .then((html) => extractAndConvertToObject(html))
-    .then((json) => {
-      return jsonToCsv(json, year);
-    });
+export const CreateCsv = async (): Promise<string> => {
+  const html = await fetchHtmlSource();
+  const year = getYear(html);
+  const json = await extractAndConvertToObject(html);
+  return jsonToCsv(json, year);
 };
 
 // iCalを作成する
-export const CreateIcal = async (year: number): Promise<string> => {
-  return await fetchHtmlSource()
-    .then((html) => extractAndConvertToObject(html))
-    .then((json) => {
-      return jsonToIcal(json, year);
-    });
+export const CreateIcal = async (): Promise<string> => {
+  const html = await fetchHtmlSource();
+  const year = getYear(html);
+  const json = await extractAndConvertToObject(html);
+  return jsonToIcal(json, year);
 };

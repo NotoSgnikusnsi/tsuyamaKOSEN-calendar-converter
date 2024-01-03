@@ -5,11 +5,10 @@ serve(async (req) => {
   const pathname = new URL(req.url).pathname;
   console.log(pathname);
 
-  const year = new Date().getFullYear();
   let response;
 
   if (pathname === "/csv" && req.method === "GET") {
-    response = await CreateCsv(year);
+    response = await CreateCsv();
     return new Response(response, {
       headers: {
         "content-type": "text/csv",
@@ -19,7 +18,7 @@ serve(async (req) => {
   }
 
   if (pathname === "/ical" && req.method === "GET") {
-    const response = await CreateIcal(year);
+    const response = await CreateIcal();
     return new Response(response, {
       headers: {
         "content-type": "text/calendar",
