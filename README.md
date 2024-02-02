@@ -2,12 +2,6 @@
 
 ## usage
 
-cmd
-
-```cmd
-$ deno run --allow-net --unsafely-ignore-certificate-errors=www.tsuyama-ct.ac.jp server.ts
-```
-
 ical
 
 ```url
